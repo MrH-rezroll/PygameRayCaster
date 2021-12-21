@@ -1,6 +1,15 @@
-import math as mth
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#----------------------------------------------------------------------------
+# Created By  : Matthew Hodge
+# Created Date: 12.19.21
+# version ='1.0'
+# ---------------------------------------------------------------------------
+""" Contains the data neccessary to represent a Player object in the 2D environment"""
+# ---------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------
 import pygame
-
 from includes.utils import degToRad
 from includes.utils import fixAng
 from pygame.locals import *
@@ -8,8 +17,40 @@ from math import cos
 from math import sin
 
 class Player(pygame.sprite.Sprite):
+    """
+    A class used to represent a Player
+
+    ...
+
+    Attributes
+    ----------
+    moveSpeed : int
+        the rate this Player should move at
+    surf : Surface
+        the Pygame surface this Player will draw to
+    rect : Rect
+        the Pygame rect of this Player's Surface
+    px : int
+        Player's location on the X axis
+    py : int
+        Player's location on the Y axis
+    pdx : int
+        Player's dirction on X axis
+    pdy : int
+        Player's direction on the Y axis
+
+    Methods
+    -------
+    move(self, deltaTime, mapX, mapW)
+        Moves the player on its X and Y, based on user input
+    """
 
     def __init__(self):
+        """
+        Parameters
+        ----------
+        none
+        """
         super().__init__() 
         self.moveSpeed = 100
         self.surf = pygame.Surface((32, 32))
@@ -22,7 +63,17 @@ class Player(pygame.sprite.Sprite):
         self.pdy = -sin(degToRad(self.pa))
 
     def move(self, deltaTime, mapX, mapW):
+        """Moves the player with user input.
 
+        Parameters
+        ----------
+        deltaTime : float
+            The time since the last main loop ran
+        mapX : int
+            Map size on X, map is square so X is used on for Y
+        mapW : int[]
+            Represents map walls for collision
+        """
         updateMap = False
         xo = 0
         if self.pdx < 0:

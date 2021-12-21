@@ -1,6 +1,14 @@
-import math as mth
-import array as arr
-import pygame
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#----------------------------------------------------------------------------
+# Created By  : Matthew Hodge
+# Created Date: 12.19.21
+# version ='1.0'
+# ---------------------------------------------------------------------------
+""" Contains the set of functions and data that draw a FPS perspective from a 2D map"""
+# ---------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------
 from math import cos
 from math import sin
 from math import tan
@@ -13,12 +21,29 @@ angleOffset = 1
 rayWidth = 8
 rayCount = 62
 quality = 1
+qualityMode = 1
 updateQuality = 0
 blit_list = []
 prevPlayerX = 0
 prevPlayerY = 0
 prevPlayerPA = 0
 currentSurfaceColorBoxes = ColorBoxPixels
+
+def setQualityMode(newMode):
+    global qualityMode, quality, updateQuality
+    qualityMode = newMode
+    if qualityMode == 1:
+        quality = 1
+        updateQuality = 1
+        adjustQuality()
+        updateQuality = 0
+    elif qualityMode == 2:
+        quality = 2
+        updateQuality = 1
+        adjustQuality()
+        updateQuality = 0
+
+
 def setRaycasterQualityLevels(newQuality):
     global quality
     global currentSurfaceColorBoxes
@@ -28,17 +53,9 @@ def setRaycasterQualityLevels(newQuality):
     elif newQuality == 2:
         quality = 2
         currentSurfaceColorBoxes = ColorBoxPixels2X
-    elif newQuality == 3:
-        """
-        angleOffset = 0.25
-        rayWidth = 2
-        rayCount = 242
-        updateColorBoxes(2,1)
-        """
-        print('quality setting not currently implemented')
-    updateQuality = 1
 
 def adjustQuality():
+    global qualityMode
     global quality
     global angleOffset
     global rayWidth
@@ -51,32 +68,26 @@ def adjustQuality():
         angleOffset = 0.5
         rayWidth = 4
         rayCount = 122
-    elif quality == 3:
-        """
-        angleOffset = 0.25
-        rayWidth = 2
-        rayCount = 242
-        updateColorBoxes(2,1)
-        """
-        print('quality setting not currently implemented')
 
 def drawRays2D(pa, px, py, mapX, mapY, mapW, mapC, mapS, mapWindowSurface, gameWindowSurface):
     global prevPlayerPA, prevPlayerX, prevPlayerY, quality, updateQuality
-    if pa == prevPlayerPA and px == prevPlayerX and py == prevPlayerY:
-        if quality != 2:
-            quality = 2
+    
+    if qualityMode == 3:
+        if pa == prevPlayerPA and px == prevPlayerX and py == prevPlayerY:
+            if quality != 2:
+                quality = 2
+                updateQuality = 1
+        elif quality != 1:
+            quality = 1
             updateQuality = 1
-    elif quality != 1:
-        quality = 1
-        updateQuality = 1
+    
+        if updateQuality == 1:
+            adjustQuality()
+            updateQuality = 0
 
     prevPlayerPA = pa
     prevPlayerX = px
     prevPlayerY = py
-    
-    if updateQuality == 1:
-        adjustQuality()
-        updateQuality = 0
     
     r = mx = my = mp = dof = 0
     vx = vy = rx = ry = xo = yo = disV = disH = 0.0
@@ -142,8 +153,6 @@ def drawRays2D(pa, px, py, mapX, mapY, mapW, mapC, mapS, mapWindowSurface, gameW
             mp = my * mapX + mx
             if mp < mapX*mapY and mp > 0 and mapW[mp] > 0:
                 hmt=mapW[mp]-1
-                hx = rx
-                hy = ry
                 disH=cos(degToRad(ra))*(rx-px)-sin(degToRad(ra))*(ry-py)
                 dof=8
             else:

@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#----------------------------------------------------------------------------
+# Created By  : Matthew Hodge
+# Created Date: 12.19.21
+# version ='1.0'
+# ---------------------------------------------------------------------------
+"""Contains the set of functions and data neccesary to represent and draw 2D textures"""
+# ---------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------
 import array as arr
 import pygame
 

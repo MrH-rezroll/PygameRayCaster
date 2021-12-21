@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#----------------------------------------------------------------------------
+# Created By  : Matthew Hodge
+# Created Date: 12.19.21
+# version ='1.0'
+# ---------------------------------------------------------------------------
+"""The entry point to the 2D raycast Pygame example program"""
+# ---------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------
 import math as mth, pygame, os, sys, array as arr
 
 from pygame.locals import *
@@ -40,7 +51,25 @@ datac = pygame.image.load("tmpBG.jpg").convert()
 datac_rect = datac.get_rect()
 background = pygame.Surface((1000, 333)).convert()
 background.blit(datac, datac_rect)
-gameWindowSurface.blit(background, (0,0))
+
+
+datac = pygame.image.load("tmpTitle.jpg").convert()
+datac_rect = datac.get_rect()
+titleScreen = pygame.Surface((WIDTH, HEIGHT)).convert()
+titleScreen.blit(datac, datac_rect)
+displaysurface.blit(titleScreen, (0,0))
+
+datac = pygame.image.load("tmpLose.jpg").convert()
+datac_rect = datac.get_rect()
+loseScreen = pygame.Surface((WIDTH, HEIGHT)).convert()
+loseScreen.blit(datac, datac_rect)
+
+datac = pygame.image.load("tmpWin.jpg").convert()
+datac_rect = datac.get_rect()
+winScreen = pygame.Surface((WIDTH, HEIGHT)).convert()
+winScreen.blit(datac, datac_rect)
+
+gameState = 0
 
 player = Player()
 drawMap2D()
@@ -52,38 +81,72 @@ def distance(ax, ay, bx, by, ang):
 gameRunning = 1
 def renderUpdate(gameWindowSurface,mapViewerSurface,mapWindowSurface,displaysurface,gameRunning):
     while gameRunning == 1:
-        gameWindowSurface.blit(background, (0,0))
-        mapViewerSurface.fill((0,0,0))
-        mapWindowSurface.blit(mapTilesSurface, mapTilesSurface.get_rect())
-        mapWindowSurface.blit(player.surf, player.rect)
-        drawRays2D(player.pa, player.px, player.py, mapX, mapY, mapW, mapC, mapS, mapWindowSurface, gameWindowSurface)
-        mapViewerSurface.blit(mapWindowSurface, (256 - (int)(player.px), 256 - (int)(player.py)), mapViewerSurface.get_rect().inflate(-1, -1))
-        mapViewerSurface.scroll(64 - 512 - (int)(player.px), 64 - 512 - (int)(player.py))
-        displaysurface.blit(gameWindowSurface, (80, 0))
-        displaysurface.blit(pygame.transform.scale(mapViewerSurface, ((128, 128))), (256, 336))
-        pygame.display.flip()
+        if gameState == 0:
+            displaysurface.blit(titleScreen, (0, 0))
+            pygame.display.flip()
+        elif gameState == 1:
+            gameWindowSurface.blit(background, (0,0))
+            mapViewerSurface.fill((0,0,0))
+            mapWindowSurface.blit(mapTilesSurface, mapTilesSurface.get_rect())
+            mapWindowSurface.blit(player.surf, player.rect)
+            drawRays2D(player.pa, player.px, player.py, mapX, mapY, mapW, mapC, mapS, mapWindowSurface, gameWindowSurface)
+            mapViewerSurface.blit(mapWindowSurface, (256 - (int)(player.px), 256 - (int)(player.py)), mapViewerSurface.get_rect().inflate(-1, -1))
+            mapViewerSurface.scroll(64 - 512 - (int)(player.px), 64 - 512 - (int)(player.py))
+            displaysurface.blit(gameWindowSurface, (80, 0))
+            displaysurface.blit(pygame.transform.scale(mapViewerSurface, ((128, 128))), (256, 336))
+            pygame.display.flip()
+        elif gameState == 2:
+            displaysurface.blit(loseScreen, (0, 0))
+            pygame.display.flip()
+        elif gameState == 3:
+            displaysurface.blit(winScreen, (0, 0))
+            pygame.display.flip()
 
 def logicUpdate():
-    global getTicksLastFrame
-    global deltaTime
     global player
-    global gameRunning
+    global gameState
+    pressed_keys = pygame.key.get_pressed()
     if player.move(deltaTime, mapX, mapW):
         drawMap2D()
         mapTilesSurface.blits(mapSprites)
     pressed_keys = pygame.key.get_pressed()
 
     if pressed_keys[pygame.K_1]:
-        setRaycasterQualityLevels(1)
+        setQualityMode(1)
     elif pressed_keys[pygame.K_2]:
-        setRaycasterQualityLevels(2)
+        setQualityMode(2)
     elif pressed_keys[pygame.K_3]:
-        setRaycasterQualityLevels(3)
+        setQualityMode(3)
+
+    if pressed_keys[pygame.K_k]:
+        gameState = 2
+    if pressed_keys[pygame.K_l]:
+        gameState = 3
+
+def stateManagement():
+    global getTicksLastFrame
+    global deltaTime
+    global gameRunning
+    global gameState
+
+
+    if gameState == 1:
+        logicUpdate()
 
     for event in pygame.event.get():
+        if event.type == KEYDOWN:
+            if gameState == 0:  
+                if event.key == pygame.K_RETURN:
+                    gameState = 1
+            elif gameState == 2:  
+                if event.key == pygame.K_RETURN:
+                    gameState = 0
+            elif gameState == 3:  
+                if event.key == pygame.K_RETURN:
+                    gameState = 0
         if event.type == QUIT:
+            gameState = 0
             gameRunning = 0
-
     t = pygame.time.get_ticks()
     # deltaTime in seconds.
     deltaTime = (t - getTicksLastFrame) / 1000.0
@@ -94,6 +157,6 @@ if __name__ == '__main__':
     rT = Thread(target=renderUpdate, args=(gameWindowSurface,mapViewerSurface,mapWindowSurface,displaysurface,gameRunning))
     rT.start()
     while gameRunning == 1:    
-        logicUpdate()
+        stateManagement()
     pygame.quit()
     sys.exit()
