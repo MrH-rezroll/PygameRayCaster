@@ -80,6 +80,7 @@ def distance(ax, ay, bx, by, ang):
 
 gameRunning = 1
 def renderUpdate(gameWindowSurface,mapViewerSurface,mapWindowSurface,displaysurface,gameRunning):
+    global mapW
     while gameRunning == 1:
         if gameState == 0:
             displaysurface.blit(titleScreen, (0, 0))
@@ -120,7 +121,7 @@ def logicUpdate():
 
     if pressed_keys[pygame.K_k]:
         gameState = 2
-    if pressed_keys[pygame.K_l]:
+    if round(player.px) <= 90 and round(player.py) <= 90:
         gameState = 3
 
 def stateManagement():
@@ -129,8 +130,12 @@ def stateManagement():
     global gameRunning
     global gameState
 
-
-    if gameState == 1:
+    if gameState == 0:
+        player.setupPlayer()
+        setupMaps()
+        drawMap2D()
+        mapW[26] = 3
+    elif gameState == 1:
         logicUpdate()
 
     for event in pygame.event.get():

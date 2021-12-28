@@ -45,13 +45,7 @@ class Player(pygame.sprite.Sprite):
         Moves the player on its X and Y, based on user input
     """
 
-    def __init__(self):
-        """
-        Parameters
-        ----------
-        none
-        """
-        super().__init__() 
+    def setupPlayer(self):
         self.moveSpeed = 100
         self.surf = pygame.Surface((32, 32))
         self.surf.fill((255,255,0))
@@ -61,6 +55,14 @@ class Player(pygame.sprite.Sprite):
         self.pa = 90
         self.pdx = cos(degToRad(self.pa))
         self.pdy = -sin(degToRad(self.pa))
+
+    def __init__(self):
+        """
+        Parameters
+        ----------
+        none
+        """
+        super().__init__() 
 
     def move(self, deltaTime, mapX, mapW):
         """Moves the player with user input.
@@ -183,7 +185,7 @@ class Player(pygame.sprite.Sprite):
                 self.px -= self.pdx * self.moveSpeed * deltaTime
             if mapW[(int)(ipy_sub_yo*mapX + ipx)]==0:
                 self.py -= self.pdy * self.moveSpeed * deltaTime
-
+                
         if pressed_keys[K_e]:
             xo=0 
             if self.pdx<0:
